@@ -33,17 +33,29 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        // Hash password before saving
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+        // Check if the user already exists by username or email
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already taken");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already registered");
+        }
+
+        // Create and save the new user
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
+
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("✅ User registered successfully");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
