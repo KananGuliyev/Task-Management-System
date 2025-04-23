@@ -1,0 +1,23 @@
+
+
+spring:
+
+  security:
+    user:
+      name: kanan
+      password: TaskManager2025
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskdb
+    username: postgres
+    password: TaskManager2025
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
